@@ -9,7 +9,7 @@
         .container { background: white; padding: 35px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         h2 { color: #1e3a8a; margin-top: 0; }
         label { font-weight: bold; display: block; margin-top: 20px; margin-bottom: 6px; color: #444; }
-        input[type="password"], textarea, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; background-color: #fff; }
+        textarea, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; background-color: #fff; }
         textarea { height: 160px; resize: vertical; }
         button { background: #2563eb; color: white; border: none; padding: 14px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; margin-top: 25px; width: 100%; font-weight: bold; transition: background 0.2s; }
         button:hover { background: #1d4ed8; }
@@ -42,10 +42,7 @@
 
     <div class="container">
         <h2>Instant Resume Updater 🚀</h2>
-        <p style="color: #64748b; margin-top: -10px;">Social Service System. Local Pendrive Patch Engine.</p>
-
-        <label for="apiKey">Your Default Gemini Project API Key:</label>
-        <input type="password" id="apiKey" placeholder="Paste your AIzaSy... key code here">
+        <p style="color: #64748b; margin-top: -10px;">Social Service Edition. Powered by Google Gemini AI (Key Built-in).</p>
 
         <label for="resume">Current Resume Text Content:</label>
         <textarea id="resume" placeholder="Select all text from the existing resume and paste it here..."></textarea>
@@ -55,7 +52,7 @@
 
         <button onclick="updateResume()">Generate Tailored Version</button>
 
-        <div id="loading" class="loading">⏳ Processing... Requesting Google Gemini Translation Engine... Please wait...</div>
+        <div id="loading" class="loading">⏳ Gemini is rewriting your resume to match the JD... Please wait...</div>
         <div id="errorBox" class="error-box"></div>
         
         <div id="formatSection" class="format-section">
@@ -82,7 +79,8 @@
 
     <script>
         async function updateResume() {
-            const apiKey = document.getElementById('apiKey').value.trim();
+            // Your API key is now securely hardcoded right into the system request pipeline
+            const apiKey = "AQ.Ab8RN6K_PFhBEbELQSD3IAqySXYbmIXbFy36SeNbwPfZvG-4TQ".trim();
             const resumeText = document.getElementById('resume').value.trim();
             const jdText = document.getElementById('jd').value.trim();
             
@@ -97,8 +95,8 @@
             formatSection.style.display = 'none';
             outputWrapper.style.display = 'none';
 
-            if (!apiKey || !resumeText || !jdText) {
-                showError('Missing fields. Please fill in Key, Resume, and JD fields.');
+            if (!resumeText || !jdText) {
+                showError('Missing fields. Please make sure both Resume and JD are filled in.');
                 loading.style.display = 'none';
                 return;
             }
@@ -108,43 +106,33 @@
             const url = `https://googleapis.com{apiKey}`;
 
             try {
-                // Using standard XMLHttpRequest which has looser local sandbox restrictions in some browsers than fetch()
-                const xhr = new XMLHttpRequest();
-                xhr.open("POST", url, true);
-                xhr.setRequestHeader("Content-Type", "application/json");
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: promptText }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
                 
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4) {
-                        loading.style.display = 'none';
-                        if (xhr.status === 200) {
-                            const data = JSON.parse(xhr.responseText);
-                            if (data.candidates && data.candidates[0].content.parts[0].text) {
-                                output.innerText = data.candidates[0].content.parts[0].text;
-                                formatSection.style.display = 'block';
-                                outputWrapper.style.display = 'block';
-                                applyStylePreset();
-                            } else {
-                                showError('AI processed the data but returned an unexpected layout.');
-                            }
-                        } else {
-                            try {
-                                const errData = JSON.parse(xhr.responseText);
-                                showError('Google Cloud API Error: ' + errData.error.message);
-                            } catch(e) {
-                                showError('Browser Local Storage Shield Blocked Request. To solve this immediately, please proceed to upload this file to GitHub Pages for free online access.');
-                            }
-                        }
-                    }
-                };
-
-                xhr.send(JSON.stringify({
-                    contents: [{
-                        parts: [{ text: promptText }]
-                    }]
-                }));
-
+                if (data.error) {
+                    showError('Google API Error: ' + data.error.message);
+                } else if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
+                    const resultText = data.candidates[0].content.parts[0].text;
+                    output.innerText = resultText;
+                    formatSection.style.display = 'block';
+                    outputWrapper.style.display = 'block';
+                    applyStylePreset();
+                } else {
+                    showError('AI was unable to process the text structure. Please try clicking generate again.');
+                }
             } catch (err) {
-                showError('Local execution network boundary limit hit.');
+                showError('Connection Failure: Could not reach the server. Make sure you are connected to the internet.');
+                console.error(err);
+            } finally {
                 loading.style.display = 'none';
             }
         }
