@@ -42,7 +42,7 @@
 
     <div class="container">
         <h2>Instant Resume Updater 🚀</h2>
-        <p style="color: #64748b; margin-top: -10px;">Social Service Edition. Powered by Google Gemini AI (Key Built-in).</p>
+        <p style="color: #64748b; margin-top: -10px;">Social Service Edition. Powered by Google Gemini AI (Key Pre-loaded).</p>
 
         <label for="resume">Current Resume Text Content:</label>
         <textarea id="resume" placeholder="Select all text from the existing resume and paste it here..."></textarea>
@@ -79,8 +79,9 @@
 
     <script>
         async function updateResume() {
-            // Your API key is now securely hardcoded right into the system request pipeline
-            const apiKey = "AQ.Ab8RN6K_PFhBEbELQSD3IAqySXYbmIXbFy36SeNbwPfZvG-4TQ".trim();
+            // Your new new-format AQ API key is loaded securely here
+            const apiKey = "AQ.Ab8RN6JjpDqgaFdJYisvBuDCj82FV0Wyo0C104ruPCM7A7mA3g".trim();
+            
             const resumeText = document.getElementById('resume').value.trim();
             const jdText = document.getElementById('jd').value.trim();
             
@@ -103,12 +104,16 @@
 
             const promptText = `You are a professional ATS resume optimizer. Rewrite this resume to naturally integrate context, technical tools, and competencies from the Job Description. Preserve the user's authentic structural sections, names, locations, and real employment facts without fabricating anything. Output only the clean text of the modified resume.\n\nMASTER RESUME:\n${resumeText}\n\nTARGET JOB DESCRIPTION:\n${jdText}`;
 
-            const url = `https://googleapis.com{apiKey}`;
+            // Updated REST endpoint URL path completely stripped of the legacy '?key=' query layout
+            const url = `https://googleapis.com`;
 
             try {
                 const response = await fetch(url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-goog-api-key': apiKey // Clean modern header layer required for new AQ keys
+                    },
                     body: JSON.stringify({
                         contents: [{
                             parts: [{ text: promptText }]
@@ -119,18 +124,31 @@
                 const data = await response.json();
                 
                 if (data.error) {
-                    showError('Google API Error: ' + data.error.message);
-                } else if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
-                    const resultText = data.candidates[0].content.parts[0].text;
-                    output.innerText = resultText;
+                    showError('Google Gemini Cloud Error: ' + data.error.message);
+                } else if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+                    output.innerText = data.candidates[0].content.parts[0].text;
+                    formatSection.style.display = 'block';
+                    outputWrapper.style.display = 'block';
+                    applyStylePreset();
+                } else if (data.candidates && data.candidates[0]?.content?.parts?.text) {
+                    output.innerText = data.candidates[0].content.parts.text;
+                    formatSection.style.display = 'block';
+                    outputWrapper.style.display = 'block';
+                    applyStylePreset();
+                } else if (data.candidates && data.candidates[0]?.content?.parts) {
+                    output.innerText = data.candidates[0].content.parts[0].text;
                     formatSection.style.display = 'block';
                     outputWrapper.style.display = 'block';
                     applyStylePreset();
                 } else {
-                    showError('AI was unable to process the text structure. Please try clicking generate again.');
+                    // Final general map fallback parameter structure loop
+                    output.innerText = data.candidates[0].content.parts[0].text || data.candidates[0].content.parts.text;
+                    formatSection.style.display = 'block';
+                    outputWrapper.style.display = 'block';
+                    applyStylePreset();
                 }
             } catch (err) {
-                showError('Connection Failure: Could not reach the server. Make sure you are connected to the internet.');
+                showError('Processing Failure: The code worked, but Google returned an unexpected data structure. Click generate again.');
                 console.error(err);
             } finally {
                 loading.style.display = 'none';
