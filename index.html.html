@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instant Resume Updater - Social Service Edition</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 850px; margin: 40px auto; padding: 0 20px; color: #333; background-color: #f4f6f9; }
+        .container { background: white; padding: 35px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h2 { color: #1e3a8a; margin-top: 0; }
+        label { font-weight: bold; display: block; margin-top: 20px; margin-bottom: 6px; color: #444; }
+        input[type="password"], textarea, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; background-color: #fff; }
+        textarea { height: 160px; resize: vertical; }
+        button { background: #2563eb; color: white; border: none; padding: 14px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; margin-top: 25px; width: 100%; font-weight: bold; transition: background 0.2s; }
+        button:hover { background: #1d4ed8; }
+        
+        .format-section { display: none; background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin-top: 25px; }
+        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .btn-action { background: #10b981; margin-top: 0; }
+        .btn-action:hover { background: #059669; }
+        .btn-print { background: #475569; margin-top: 0; }
+        .btn-print:hover { background: #334155; }
+        
+        #outputWrapper { display: none; margin-top: 15px; }
+        #output { padding: 30px; border: 1px solid #cbd5e1; border-radius: 6px; white-space: pre-wrap; font-size: 14px; line-height: 1.6; background-color: #fff; }
+        
+        .fmt-corporate { font-family: "Times New Roman", Times, serif; font-size: 14px; color: #111827; }
+        .fmt-modern { font-family: "Arial", sans-serif; font-size: 14.5px; color: #1e293b; letter-spacing: 0.3px; }
+        .fmt-minimalist { font-family: Courier, monospace; font-size: 13.5px; color: #000; }
+
+        .loading { color: #2563eb; font-style: italic; display: none; margin-top: 20px; text-align: center; font-weight: 600; }
+        .error-box { color: #991b1b; background-color: #fee2e2; border: 1px solid #fca5a5; padding: 14px; border-radius: 6px; margin-top: 15px; display: none; }
+        
+        @media print {
+            body * { visibility: hidden; }
+            #output, #output * { visibility: visible; }
+            #output { position: absolute; left: 0; top: 0; width: 100%; border: none; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Instant Resume Updater 🚀</h2>
+        <p style="color: #64748b; margin-top: -10px;">Social Service System. Local Pendrive Patch Engine.</p>
+
+        <label for="apiKey">Your Default Gemini Project API Key:</label>
+        <input type="password" id="apiKey" placeholder="Paste your AIzaSy... key code here">
+
+        <label for="resume">Current Resume Text Content:</label>
+        <textarea id="resume" placeholder="Select all text from the existing resume and paste it here..."></textarea>
+
+        <label for="jd">Target Job Description (JD):</label>
+        <textarea id="jd" placeholder="Paste the job opening text here..."></textarea>
+
+        <button onclick="updateResume()">Generate Tailored Version</button>
+
+        <div id="loading" class="loading">⏳ Processing... Requesting Google Gemini Translation Engine... Please wait...</div>
+        <div id="errorBox" class="error-box"></div>
+        
+        <div id="formatSection" class="format-section">
+            <h3 style="margin-top:0; color: #334155;">✨ Resume Presentation Settings</h3>
+            
+            <label for="formatSelect">Select Layout Style Variant:</label>
+            <select id="formatSelect" onchange="applyStylePreset()">
+                <option value="corporate">Standard Corporate (Times New Roman)</option>
+                <option value="modern">Modern Creative (Arial)</option>
+                <option value="minimalist">Clean Minimalist (Monospace)</option>
+            </select>
+
+            <label style="margin-top: 15px;">Live Preview Canvas:</label>
+            <div id="outputWrapper">
+                <div id="output" class="fmt-corporate"></div>
+            </div>
+
+            <div class="action-btns">
+                <button class="btn-action" onclick="copyToClipboard()">📋 Copy Plain Text</button>
+                <button class="btn-print" onclick="exportToPDF()">🖨️ Download / Save as PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function updateResume() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const resumeText = document.getElementById('resume').value.trim();
+            const jdText = document.getElementById('jd').value.trim();
+            
+            const loading = document.getElementById('loading');
+            const errorBox = document.getElementById('errorBox');
+            const formatSection = document.getElementById('formatSection');
+            const outputWrapper = document.getElementById('outputWrapper');
+            const output = document.getElementById('output');
+
+            errorBox.style.display = 'none';
+            loading.style.display = 'block';
+            formatSection.style.display = 'none';
+            outputWrapper.style.display = 'none';
+
+            if (!apiKey || !resumeText || !jdText) {
+                showError('Missing fields. Please fill in Key, Resume, and JD fields.');
+                loading.style.display = 'none';
+                return;
+            }
+
+            const promptText = `You are a professional ATS resume optimizer. Rewrite this resume to naturally integrate context, technical tools, and competencies from the Job Description. Preserve the user's authentic structural sections, names, locations, and real employment facts without fabricating anything. Output only the clean text of the modified resume.\n\nMASTER RESUME:\n${resumeText}\n\nTARGET JOB DESCRIPTION:\n${jdText}`;
+
+            const url = `https://googleapis.com{apiKey}`;
+
+            try {
+                // Using standard XMLHttpRequest which has looser local sandbox restrictions in some browsers than fetch()
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", url, true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        loading.style.display = 'none';
+                        if (xhr.status === 200) {
+                            const data = JSON.parse(xhr.responseText);
+                            if (data.candidates && data.candidates[0].content.parts[0].text) {
+                                output.innerText = data.candidates[0].content.parts[0].text;
+                                formatSection.style.display = 'block';
+                                outputWrapper.style.display = 'block';
+                                applyStylePreset();
+                            } else {
+                                showError('AI processed the data but returned an unexpected layout.');
+                            }
+                        } else {
+                            try {
+                                const errData = JSON.parse(xhr.responseText);
+                                showError('Google Cloud API Error: ' + errData.error.message);
+                            } catch(e) {
+                                showError('Browser Local Storage Shield Blocked Request. To solve this immediately, please proceed to upload this file to GitHub Pages for free online access.');
+                            }
+                        }
+                    }
+                };
+
+                xhr.send(JSON.stringify({
+                    contents: [{
+                        parts: [{ text: promptText }]
+                    }]
+                }));
+
+            } catch (err) {
+                showError('Local execution network boundary limit hit.');
+                loading.style.display = 'none';
+            }
+        }
+
+        function applyStylePreset() {
+            const selectValue = document.getElementById('formatSelect').value;
+            const outputBlock = document.getElementById('output');
+            outputBlock.className = "";
+            if (selectValue === "corporate") outputBlock.classList.add("fmt-corporate");
+            if (selectValue === "modern") outputBlock.classList.add("fmt-modern");
+            if (selectValue === "minimalist") outputBlock.classList.add("fmt-minimalist");
+        }
+
+        function copyToClipboard() {
+            const outputText = document.getElementById('output').innerText;
+            navigator.clipboard.writeText(outputText).then(() => {
+                alert('Tailored resume copied to clipboard successfully!');
+            });
+        }
+
+        function exportToPDF() {
+            window.print();
+        }
+
+        function showError(message) {
+            const errorBox = document.getElementById('errorBox');
+            errorBox.innerText = message;
+            errorBox.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
