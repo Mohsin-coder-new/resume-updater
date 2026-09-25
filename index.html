@@ -79,9 +79,7 @@
 
     <script>
         async function updateResume() {
-            // Your new new-format AQ API key is loaded securely here
             const apiKey = "AQ.Ab8RN6JjpDqgaFdJYisvBuDCj82FV0Wyo0C104ruPCM7A7mA3g".trim();
-            
             const resumeText = document.getElementById('resume').value.trim();
             const jdText = document.getElementById('jd').value.trim();
             
@@ -104,7 +102,6 @@
 
             const promptText = `You are a professional ATS resume optimizer. Rewrite this resume to naturally integrate context, technical tools, and competencies from the Job Description. Preserve the user's authentic structural sections, names, locations, and real employment facts without fabricating anything. Output only the clean text of the modified resume.\n\nMASTER RESUME:\n${resumeText}\n\nTARGET JOB DESCRIPTION:\n${jdText}`;
 
-            // Updated REST endpoint URL path completely stripped of the legacy '?key=' query layout
             const url = `https://googleapis.com`;
 
             try {
@@ -112,7 +109,7 @@
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        'x-goog-api-key': apiKey // Clean modern header layer required for new AQ keys
+                        'x-goog-api-key': apiKey
                     },
                     body: JSON.stringify({
                         contents: [{
@@ -125,30 +122,27 @@
                 
                 if (data.error) {
                     showError('Google Gemini Cloud Error: ' + data.error.message);
-                } else if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-                    output.innerText = data.candidates[0].content.parts[0].text;
+                    return;
+                }
+                
+                // Fixed text extraction mapping safely matching the precise Gemini nested arrays loop
+                if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+                    const resultText = data.candidates[0].content.parts[0].text;
+                    output.innerText = resultText;
                     formatSection.style.display = 'block';
                     outputWrapper.style.display = 'block';
                     applyStylePreset();
-                } else if (data.candidates && data.candidates[0]?.content?.parts?.text) {
-                    output.innerText = data.candidates[0].content.parts.text;
-                    formatSection.style.display = 'block';
-                    outputWrapper.style.display = 'block';
-                    applyStylePreset();
-                } else if (data.candidates && data.candidates[0]?.content?.parts) {
-                    output.innerText = data.candidates[0].content.parts[0].text;
+                } else if (data.candidates && data.candidates.content && data.candidates.content.parts && data.candidates.content.parts.text) {
+                    const resultText = data.candidates.content.parts.text;
+                    output.innerText = resultText;
                     formatSection.style.display = 'block';
                     outputWrapper.style.display = 'block';
                     applyStylePreset();
                 } else {
-                    // Final general map fallback parameter structure loop
-                    output.innerText = data.candidates[0].content.parts[0].text || data.candidates[0].content.parts.text;
-                    formatSection.style.display = 'block';
-                    outputWrapper.style.display = 'block';
-                    applyStylePreset();
+                    showError('Response Layout Issue: Click generate again or verify that your API quota is completely free.');
                 }
             } catch (err) {
-                showError('Processing Failure: The code worked, but Google returned an unexpected data structure. Click generate again.');
+                showError('Connection error mapping response stream from server.');
                 console.error(err);
             } finally {
                 loading.style.display = 'none';
