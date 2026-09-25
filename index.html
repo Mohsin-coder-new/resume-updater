@@ -3,171 +3,1031 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instant Resume Updater - Social Service Edition</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 850px; margin: 40px auto; padding: 0 20px; color: #333; background-color: #f4f6f9; }
-        .container { background: white; padding: 35px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        h2 { color: #1e3a8a; margin-top: 0; }
-        label { font-weight: bold; display: block; margin-top: 20px; margin-bottom: 6px; color: #444; }
-        textarea, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; background-color: #fff; }
-        textarea { height: 160px; resize: vertical; }
-        button { background: #2563eb; color: white; border: none; padding: 14px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; margin-top: 25px; width: 100%; font-weight: bold; transition: background 0.2s; }
-        button:hover { background: #1d4ed8; }
-        
-        .format-section { display: none; background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin-top: 25px; }
-        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .btn-action { background: #10b981; margin-top: 0; }
-        .btn-action:hover { background: #059669; }
-        .btn-print { background: #475569; margin-top: 0; }
-        .btn-print:hover { background: #334155; }
-        
-        #outputWrapper { display: none; margin-top: 15px; }
-        #output { padding: 30px; border: 1px solid #cbd5e1; border-radius: 6px; white-space: pre-wrap; font-size: 14px; line-height: 1.6; background-color: #fff; }
-        
-        .fmt-corporate { font-family: "Times New Roman", Times, serif; font-size: 14px; color: #111827; }
-        .fmt-modern { font-family: "Arial", sans-serif; font-size: 14.5px; color: #1e293b; letter-spacing: 0.3px; }
-        .fmt-minimalist { font-family: Courier, monospace; font-size: 13.5px; color: #000; }
 
-        .loading { color: #2563eb; font-style: italic; display: none; margin-top: 20px; text-align: center; font-weight: 600; }
-        .error-box { color: #991b1b; background-color: #fee2e2; border: 1px solid #fca5a5; padding: 14px; border-radius: 6px; margin-top: 15px; display: none; }
-        
+    <title>Instant Resume Updater - Gemini AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                         Roboto, Arial, sans-serif;
+            max-width: 950px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #333;
+            background: #f4f6f9;
+        }
+
+        .container {
+            background: #fff;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            color: #1e3a8a;
+            margin-top: 0;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-top: -8px;
+            margin-bottom: 25px;
+        }
+
+        label {
+            font-weight: 700;
+            display: block;
+            margin-top: 20px;
+            margin-bottom: 7px;
+            color: #374151;
+        }
+
+        textarea,
+        select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 14px;
+            background: #fff;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 190px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+        }
+
+        button {
+            border: none;
+            padding: 14px 20px;
+            font-size: 16px;
+            border-radius: 7px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 700;
+            transition: .2s;
+        }
+
+        .generate-btn {
+            background: #2563eb;
+            color: white;
+            margin-top: 25px;
+        }
+
+        .generate-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .generate-btn:disabled {
+            background: #93c5fd;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            color: #2563eb;
+            font-style: italic;
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .error-box {
+            color: #991b1b;
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            padding: 14px;
+            border-radius: 7px;
+            margin-top: 15px;
+            display: none;
+            line-height: 1.5;
+        }
+
+        .success-box {
+            color: #166534;
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            padding: 12px;
+            border-radius: 7px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .format-section {
+            display: none;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 9px;
+            margin-top: 25px;
+        }
+
+        .format-section h3 {
+            margin-top: 0;
+            color: #334155;
+        }
+
+        #outputWrapper {
+            display: none;
+            margin-top: 15px;
+        }
+
+        #output {
+            padding: 30px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.6;
+            background: white;
+            min-height: 300px;
+            overflow-wrap: break-word;
+        }
+
+        .fmt-corporate {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 14px;
+            color: #111827;
+        }
+
+        .fmt-modern {
+            font-family: Arial, sans-serif;
+            font-size: 14.5px;
+            color: #1e293b;
+            letter-spacing: .2px;
+        }
+
+        .fmt-minimalist {
+            font-family: Courier, monospace;
+            font-size: 13.5px;
+            color: #000;
+        }
+
+        .action-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .btn-action {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-action:hover {
+            background: #059669;
+        }
+
+        .btn-print {
+            background: #475569;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: #334155;
+        }
+
+        .info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 14px;
+            border-radius: 7px;
+            margin-top: 20px;
+            color: #1e40af;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .counter {
+            text-align: right;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 650px) {
+            .container {
+                padding: 20px;
+            }
+
+            .action-btns {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media print {
-            body * { visibility: hidden; }
-            #output, #output * { visibility: visible; }
-            #output { position: absolute; left: 0; top: 0; width: 100%; border: none; padding: 0; }
+
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+            }
+
+            body * {
+                visibility: hidden;
+            }
+
+            #output,
+            #output * {
+                visibility: visible;
+            }
+
+            #output {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                border: none;
+                padding: 0;
+                min-height: auto;
+            }
         }
     </style>
 </head>
+
 <body>
 
-    <div class="container">
-        <h2>Instant Resume Updater 🚀</h2>
-        <p style="color: #64748b; margin-top: -10px;">Social Service Edition. Powered by Google Gemini AI (Key Pre-loaded).</p>
+<div class="container">
 
-        <label for="resume">Current Resume Text Content:</label>
-        <textarea id="resume" placeholder="Select all text from the existing resume and paste it here..."></textarea>
+    <h2>Instant Resume Updater 🚀</h2>
 
-        <label for="jd">Target Job Description (JD):</label>
-        <textarea id="jd" placeholder="Paste the job opening text here..."></textarea>
+    <p class="subtitle">
+        AI-powered ATS resume tailoring using Google Gemini.
+    </p>
 
-        <button onclick="updateResume()">Generate Tailored Version</button>
+    <!-- Resume -->
+    <label for="resume">
+        Current Resume
+    </label>
 
-        <div id="loading" class="loading">⏳ Gemini is rewriting your resume to match the JD... Please wait...</div>
-        <div id="errorBox" class="error-box"></div>
-        
-        <div id="formatSection" class="format-section">
-            <h3 style="margin-top:0; color: #334155;">✨ Resume Presentation Settings</h3>
-            
-            <label for="formatSelect">Select Layout Style Variant:</label>
-            <select id="formatSelect" onchange="applyStylePreset()">
-                <option value="corporate">Standard Corporate (Times New Roman)</option>
-                <option value="modern">Modern Creative (Arial)</option>
-                <option value="minimalist">Clean Minimalist (Monospace)</option>
-            </select>
+    <textarea
+        id="resume"
+        placeholder="Paste your complete existing resume here..."
+    ></textarea>
 
-            <label style="margin-top: 15px;">Live Preview Canvas:</label>
-            <div id="outputWrapper">
-                <div id="output" class="fmt-corporate"></div>
-            </div>
-
-            <div class="action-btns">
-                <button class="btn-action" onclick="copyToClipboard()">📋 Copy Plain Text</button>
-                <button class="btn-print" onclick="exportToPDF()">🖨️ Download / Save as PDF</button>
-            </div>
-        </div>
+    <div class="counter">
+        Resume characters: <span id="resumeCount">0</span>
     </div>
 
-    <script>
-        async function updateResume() {
-            const apiKey = "AQ.Ab8RN6JjpDqgaFdJYisvBuDCj82FV0Wyo0C104ruPCM7A7mA3g".trim();
-            const resumeText = document.getElementById('resume').value.trim();
-            const jdText = document.getElementById('jd').value.trim();
-            
-            const loading = document.getElementById('loading');
-            const errorBox = document.getElementById('errorBox');
-            const formatSection = document.getElementById('formatSection');
-            const outputWrapper = document.getElementById('outputWrapper');
-            const output = document.getElementById('output');
 
-            errorBox.style.display = 'none';
-            loading.style.display = 'block';
-            formatSection.style.display = 'none';
-            outputWrapper.style.display = 'none';
+    <!-- JD -->
+    <label for="jd">
+        Target Job Description
+    </label>
 
-            if (!resumeText || !jdText) {
-                showError('Missing fields. Please make sure both Resume and JD are filled in.');
-                loading.style.display = 'none';
-                return;
-            }
+    <textarea
+        id="jd"
+        placeholder="Paste the complete job description here..."
+    ></textarea>
 
-            const promptText = `You are a professional ATS resume optimizer. Rewrite this resume to naturally integrate context, technical tools, and competencies from the Job Description. Preserve the user's authentic structural sections, names, locations, and real employment facts without fabricating anything. Output only the clean text of the modified resume.\n\nMASTER RESUME:\n${resumeText}\n\nTARGET JOB DESCRIPTION:\n${jdText}`;
+    <div class="counter">
+        JD characters: <span id="jdCount">0</span>
+    </div>
 
-            const url = `https://googleapis.com`;
 
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'x-goog-api-key': apiKey
-                    },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: promptText }]
-                        }]
-                    })
-                });
+    <button
+        id="generateBtn"
+        class="generate-btn"
+        onclick="updateResume()"
+    >
+        🚀 Generate Tailored Resume
+    </button>
 
-                const data = await response.json();
-                
-                if (data.error) {
-                    showError('Google Gemini Cloud Error: ' + data.error.message);
-                    return;
+
+    <div id="loading" class="loading">
+        ⏳ Gemini is analyzing the JD and tailoring your resume...
+    </div>
+
+
+    <div id="errorBox" class="error-box"></div>
+
+    <div id="successBox" class="success-box"></div>
+
+
+    <div class="info">
+        <strong>Resume optimization rules:</strong>
+        Your existing employment history, employers, dates, education,
+        locations, and other factual information will be preserved.
+        The AI will optimize wording and incorporate relevant JD keywords
+        without intentionally inventing experience.
+    </div>
+
+
+    <!-- Output -->
+    <div id="formatSection" class="format-section">
+
+        <h3>
+            ✨ Resume Presentation Settings
+        </h3>
+
+
+        <label for="formatSelect">
+            Select Layout Style
+        </label>
+
+        <select
+            id="formatSelect"
+            onchange="applyStylePreset()"
+        >
+            <option value="corporate">
+                Standard Corporate - Times New Roman
+            </option>
+
+            <option value="modern">
+                Modern Professional - Arial
+            </option>
+
+            <option value="minimalist">
+                Clean Minimalist - Monospace
+            </option>
+        </select>
+
+
+        <label style="margin-top:20px;">
+            Tailored Resume Preview
+        </label>
+
+
+        <div id="outputWrapper">
+
+            <div
+                id="output"
+                class="fmt-corporate"
+            ></div>
+
+        </div>
+
+
+        <div class="action-btns">
+
+            <button
+                class="btn-action"
+                onclick="copyToClipboard()"
+            >
+                📋 Copy Resume
+            </button>
+
+            <button
+                class="btn-print"
+                onclick="exportToPDF()"
+            >
+                🖨️ Print / Save as PDF
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/*
+|--------------------------------------------------------------------------
+| CONFIGURATION
+|--------------------------------------------------------------------------
+|
+| IMPORTANT:
+| Do NOT publish your Gemini API key inside frontend JavaScript.
+|
+| For testing only, you can temporarily put your new key here.
+| For production, move the API call to your backend.
+|
+*/
+
+const API_KEY = "YOUR_NEW_GEMINI_API_KEY_HERE";
+
+/*
+ * Gemini model.
+ *
+ * Gemini 2.5 Flash supports text generation and is suitable for this
+ * type of resume optimization task.
+ */
+
+const MODEL = "gemini-2.5-flash";
+
+
+/*
+|--------------------------------------------------------------------------
+| API URL
+|--------------------------------------------------------------------------
+*/
+
+const API_URL =
+    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+
+
+/*
+|--------------------------------------------------------------------------
+| Character Counters
+|--------------------------------------------------------------------------
+*/
+
+document.getElementById("resume").addEventListener("input", function () {
+
+    document.getElementById("resumeCount").textContent =
+        this.value.length;
+
+});
+
+
+document.getElementById("jd").addEventListener("input", function () {
+
+    document.getElementById("jdCount").textContent =
+        this.value.length;
+
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| MAIN FUNCTION
+|--------------------------------------------------------------------------
+*/
+
+async function updateResume() {
+
+    const resumeText =
+        document.getElementById("resume").value.trim();
+
+    const jdText =
+        document.getElementById("jd").value.trim();
+
+    const loading =
+        document.getElementById("loading");
+
+    const errorBox =
+        document.getElementById("errorBox");
+
+    const successBox =
+        document.getElementById("successBox");
+
+    const formatSection =
+        document.getElementById("formatSection");
+
+    const outputWrapper =
+        document.getElementById("outputWrapper");
+
+    const output =
+        document.getElementById("output");
+
+    const generateBtn =
+        document.getElementById("generateBtn");
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reset UI
+    |--------------------------------------------------------------------------
+    */
+
+    errorBox.style.display = "none";
+    successBox.style.display = "none";
+
+    formatSection.style.display = "none";
+    outputWrapper.style.display = "none";
+
+    output.innerText = "";
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validate input
+    |--------------------------------------------------------------------------
+    */
+
+    if (!resumeText) {
+
+        showError("Please paste your current resume.");
+
+        return;
+    }
+
+
+    if (!jdText) {
+
+        showError("Please paste the target job description.");
+
+        return;
+    }
+
+
+    if (
+        !API_KEY ||
+        API_KEY === "YOUR_NEW_GEMINI_API_KEY_HERE"
+    ) {
+
+        showError(
+            "Gemini API key is missing. Add your new API key to API_KEY."
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Prompt
+    |--------------------------------------------------------------------------
+    */
+
+    const promptText = `
+
+You are an expert US resume writer and ATS optimization specialist.
+
+Your task is to tailor the MASTER RESUME to the TARGET JOB DESCRIPTION.
+
+IMPORTANT RULES:
+
+1. Preserve the candidate's real employment history.
+2. Do not invent employers.
+3. Do not invent projects.
+4. Do not invent degrees.
+5. Do not invent certifications.
+6. Do not invent employment dates.
+7. Do not change the candidate's name.
+8. Do not change the candidate's location.
+9. Do not fabricate technologies that have no reasonable basis in the
+   provided resume.
+10. Use terminology from the JD where it accurately reflects existing
+    experience.
+11. Strengthen weak bullets using an Impact -> Action -> Outcome style.
+12. Make the resume ATS-friendly.
+13. Prioritize the most relevant skills from the JD.
+14. Remove irrelevant or repetitive wording when appropriate.
+15. Keep the resume professional and concise.
+16. Do not add a cover letter.
+17. Do not explain your changes.
+18. Do not use Markdown code fences.
+19. Output ONLY the final resume.
+
+STRUCTURE:
+
+Keep the candidate's major resume sections, such as:
+
+SUMMARY
+TECHNICAL SKILLS
+PROFESSIONAL EXPERIENCE
+EDUCATION
+CERTIFICATIONS
+
+You may improve section wording and bullet points when appropriate.
+
+MASTER RESUME:
+
+${resumeText}
+
+
+TARGET JOB DESCRIPTION:
+
+${jdText}
+
+
+Now produce the final ATS-optimized resume.
+`;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Start loading
+    |--------------------------------------------------------------------------
+    */
+
+    loading.style.display = "block";
+    generateBtn.disabled = true;
+    generateBtn.textContent = "⏳ Generating...";
+
+
+    try {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Gemini API Request
+        |--------------------------------------------------------------------------
+        */
+
+        const response = await fetch(API_URL, {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type": "application/json",
+
+                "x-goog-api-key": API_KEY
+
+            },
+
+            body: JSON.stringify({
+
+                contents: [
+
+                    {
+
+                        role: "user",
+
+                        parts: [
+
+                            {
+                                text: promptText
+                            }
+
+                        ]
+
+                    }
+
+                ],
+
+                generationConfig: {
+
+                    temperature: 0.35,
+
+                    maxOutputTokens: 12000,
+
+                    topP: 0.9
+
                 }
-                
-                // FIXED PARSING ENGINE: Targets the exact array indexes returned by Gemini 1.5 Flash
-                if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-                    const resultText = data.candidates[0].content.parts[0].text;
-                    output.innerText = resultText;
-                    formatSection.style.display = 'block';
-                    outputWrapper.style.display = 'block';
-                    applyStylePreset();
-                } else {
-                    showError('Response layout mismatch. Please check your data input and try again.');
-                }
-            } catch (err) {
-                showError('Connection error mapping response stream from server.');
-                console.error(err);
-            } finally {
-                loading.style.display = 'none';
-            }
+
+            })
+
+        });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Read response
+        |--------------------------------------------------------------------------
+        */
+
+        const data = await response.json();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Debugging
+        |--------------------------------------------------------------------------
+        */
+
+        console.log(
+            "Gemini HTTP status:",
+            response.status
+        );
+
+        console.log(
+            "Gemini response:",
+            data
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | API Error
+        |--------------------------------------------------------------------------
+        */
+
+        if (!response.ok) {
+
+            const apiMessage =
+                data?.error?.message ||
+                `HTTP ${response.status}`;
+
+            throw new Error(apiMessage);
         }
 
-        function applyStylePreset() {
-            const selectValue = document.getElementById('formatSelect').value;
-            const outputBlock = document.getElementById('output');
-            outputBlock.className = "";
-            if (selectValue === "corporate") outputBlock.classList.add("fmt-corporate");
-            if (selectValue === "modern") outputBlock.classList.add("fmt-modern");
-            if (selectValue === "minimalist") outputBlock.classList.add("fmt-minimalist");
+
+        /*
+        |--------------------------------------------------------------------------
+        | Safety / Blocked Response
+        |--------------------------------------------------------------------------
+        */
+
+        const candidate =
+            data?.candidates?.[0];
+
+
+        if (!candidate) {
+
+            throw new Error(
+                "Gemini returned no candidate response."
+            );
         }
 
-        function copyToClipboard() {
-            const outputText = document.getElementById('output').innerText;
-            navigator.clipboard.writeText(outputText).then(() => {
-                alert('Tailored resume copied to clipboard successfully!');
-            });
+
+        if (
+            candidate.finishReason === "SAFETY"
+        ) {
+
+            throw new Error(
+                "Gemini blocked the request because of its safety filters."
+            );
         }
 
-        function exportToPDF() {
-            window.print();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Extract text safely
+        |--------------------------------------------------------------------------
+        */
+
+        const parts =
+            candidate?.content?.parts || [];
+
+
+        const resultText =
+            parts
+                .map(part => part?.text || "")
+                .join("")
+                .trim();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate result
+        |--------------------------------------------------------------------------
+        */
+
+        if (!resultText) {
+
+            console.error(
+                "Unexpected Gemini structure:",
+                data
+            );
+
+            throw new Error(
+                "Gemini returned an empty response."
+            );
         }
 
-        function showError(message) {
-            const errorBox = document.getElementById('errorBox');
-            errorBox.innerText = message;
-            errorBox.style.display = 'block';
-        }
-    </script>
+
+        /*
+        |--------------------------------------------------------------------------
+        | Clean common AI formatting
+        |--------------------------------------------------------------------------
+        */
+
+        const cleanedResume =
+            cleanResumeOutput(resultText);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Display result
+        |--------------------------------------------------------------------------
+        */
+
+        output.innerText = cleanedResume;
+
+        formatSection.style.display = "block";
+
+        outputWrapper.style.display = "block";
+
+        applyStylePreset();
+
+
+        successBox.innerText =
+            "✅ Resume successfully tailored to the job description.";
+
+        successBox.style.display = "block";
+
+
+    } catch (error) {
+
+        console.error(
+            "Resume generation error:",
+            error
+        );
+
+
+        showError(
+            "Gemini request failed: " +
+            error.message
+        );
+
+    } finally {
+
+        loading.style.display = "none";
+
+        generateBtn.disabled = false;
+
+        generateBtn.textContent =
+            "🚀 Generate Tailored Resume";
+
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Clean AI Output
+|--------------------------------------------------------------------------
+*/
+
+function cleanResumeOutput(text) {
+
+    let result = text.trim();
+
+
+    /*
+     * Remove code fences if Gemini accidentally adds them.
+     */
+
+    result = result.replace(
+        /^```(?:text|markdown)?/i,
+        ""
+    );
+
+    result = result.replace(
+        /```$/i,
+        ""
+    );
+
+
+    /*
+     * Remove common introductory phrases.
+     */
+
+    result = result.replace(
+        /^Here is the (?:tailored|optimized|updated).*?:\s*/i,
+        ""
+    );
+
+
+    result = result.trim();
+
+
+    return result;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Apply Font Style
+|--------------------------------------------------------------------------
+*/
+
+function applyStylePreset() {
+
+    const selectValue =
+        document.getElementById("formatSelect").value;
+
+    const outputBlock =
+        document.getElementById("output");
+
+
+    outputBlock.className = "";
+
+
+    if (selectValue === "corporate") {
+
+        outputBlock.classList.add(
+            "fmt-corporate"
+        );
+
+    }
+
+
+    if (selectValue === "modern") {
+
+        outputBlock.classList.add(
+            "fmt-modern"
+        );
+
+    }
+
+
+    if (selectValue === "minimalist") {
+
+        outputBlock.classList.add(
+            "fmt-minimalist"
+        );
+
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Copy Resume
+|--------------------------------------------------------------------------
+*/
+
+async function copyToClipboard() {
+
+    const outputText =
+        document.getElementById("output").innerText;
+
+
+    if (!outputText) {
+
+        alert("There is no resume to copy.");
+
+        return;
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            outputText
+        );
+
+        alert(
+            "✅ Tailored resume copied to clipboard."
+        );
+
+    } catch (error) {
+
+        /*
+         * Fallback for browsers that block
+         * navigator.clipboard.
+         */
+
+        const temp =
+            document.createElement("textarea");
+
+        temp.value = outputText;
+
+        document.body.appendChild(temp);
+
+        temp.select();
+
+        document.execCommand("copy");
+
+        document.body.removeChild(temp);
+
+        alert(
+            "✅ Resume copied to clipboard."
+        );
+
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Print / PDF
+|--------------------------------------------------------------------------
+*/
+
+function exportToPDF() {
+
+    const outputText =
+        document.getElementById("output").innerText;
+
+
+    if (!outputText) {
+
+        alert(
+            "Please generate the resume first."
+        );
+
+        return;
+    }
+
+
+    window.print();
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Error Display
+|--------------------------------------------------------------------------
+*/
+
+function showError(message) {
+
+    const errorBox =
+        document.getElementById("errorBox");
+
+
+    errorBox.innerText = message;
+
+    errorBox.style.display = "block";
+
+}
+
+</script>
+
 </body>
 </html>
