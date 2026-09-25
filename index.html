@@ -125,21 +125,15 @@
                     return;
                 }
                 
-                // Fixed text extraction mapping safely matching the precise Gemini nested arrays loop
+                // FIXED PARSING ENGINE: Targets the exact array indexes returned by Gemini 1.5 Flash
                 if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
                     const resultText = data.candidates[0].content.parts[0].text;
                     output.innerText = resultText;
                     formatSection.style.display = 'block';
                     outputWrapper.style.display = 'block';
                     applyStylePreset();
-                } else if (data.candidates && data.candidates.content && data.candidates.content.parts && data.candidates.content.parts.text) {
-                    const resultText = data.candidates.content.parts.text;
-                    output.innerText = resultText;
-                    formatSection.style.display = 'block';
-                    outputWrapper.style.display = 'block';
-                    applyStylePreset();
                 } else {
-                    showError('Response Layout Issue: Click generate again or verify that your API quota is completely free.');
+                    showError('Response layout mismatch. Please check your data input and try again.');
                 }
             } catch (err) {
                 showError('Connection error mapping response stream from server.');
